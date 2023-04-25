@@ -21,7 +21,7 @@
                 class="mt-4"
               ></v-text-field>
 
-            <v-text-field 
+            <v-text-field
                 type="password"
                 id="password"
                 v-model="user.password"

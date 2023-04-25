@@ -3,7 +3,6 @@
   <v-container fill-height fluid>
     <navbar />
     <v-col
-      align="center"
       justify="center"
       fill-height
       class="d-flex justify-center"
@@ -17,10 +16,13 @@
             v-model="valid"
             @submit.prevent="createAppointment"
           >
-          <v-img class='mx-auto' src='../assets/caduceus-transparent-background-8.png'
-            max-width='50px'
-            max-height='100px'
-            > </v-img>
+            <v-img
+              class="mx-auto"
+              src="../assets/caduceus-transparent-background-8.png"
+              max-width="50px"
+              max-height="100px"
+            >
+            </v-img>
             <h1>Please Enter Appointment Information</h1>
             <v-text-field
               v-model="appointment.appointmentDate"
@@ -152,7 +154,7 @@ export default {
     },
     chosenDoctor() {
       this.appointment.doctorId = this.doctorObj.doctorId;
-      console.log('id', this.doctorObj.doctorId);
+      console.log("id", this.doctorObj.doctorId);
       DoctorTimeService.getTimeArray(
         this.appointment.doctorId,
         this.appointment.appointmentDate
