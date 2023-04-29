@@ -77,94 +77,97 @@ import AppointmentService from "../services/AppointmentService";
 import Navbar from "../components/Navbar.vue";
 import DoctorTimeService from "../services/DoctorTimeService";
 export default {
-  name: "AppointmentForm",
-  components: {
+    name: "UpdateAppointmentForm",
+
+components: {
     Navbar,
-  },
-  data: () => ({
+},
+data: () => ({
     appointment: {
-      patientId: 0,
-      doctorId: null,
-      appointmentDuration: 30,
-      description: "",
-      appointmentDate: "",
-      appointmentTime: "",
+        patientId: 0,
+        doctorId: null,
+        appointmentDuration: 30,
+        description: "",
+        appointmentDate: "",
+        appointmentTime: "",
     },
     timeslots: [],
     valid: false,
     selected: null,
     dateSelected: null,
     dateRules: [
-      (value) => {
-        if (value) return true;
-        return "Date is required.";
-      },
-      // eslint-disable-next-line
-      /* eslint-disable */
-      (value) => {
-        if (
-          /^\d{4}[\-\/\s]?((((0[13578])|(1[02]))[\-\/\s]?(([0-2][0-9])|(3[01])))|(((0[469])|(11))[\-\/\s]?(([0-2][0-9])|(30)))|(02[\-\/\s]?[0-2][0-9]))$/.test(
-            value
-          )
-        )
-          return true;
-        return "Date must be in the format YYYY-MM-DD.";
-      },
+        (value) => {
+            if (value) return true;
+            return "Date is required.";
+        },
+        // eslint-disable-next-line
+        /* eslint-disable */
+        (value) => {
+            if (
+                /^\d{4}[\-\/\s]?((((0[13578])|(1[02]))[\-\/\s]?(([0-2][0-9])|(3[01])))|(((0[469])|(11))[\-\/\s]?(([0-2][0-9])|(30)))|(02[\-\/\s]?[0-2][0-9]))$/.test(
+                    value
+                )
+            )
+                return true;
+            return "Date must be in the format YYYY-MM-DD.";
+        },
     ],
     timeRules: [
-      (value) => {
-        if (value) return true;
-        return "Time is required.";
-      },
-      (value) => {
-        if (/(([0-1][0-9])|([2][0-3])):([0-5][0-9]):([0-5][0-9])/.test(value))
-          return true;
-        return "Time must be in the format 00:00:00.";
-      },
+        (value) => {
+            if (value) return true;
+            return "Time is required.";
+        },
+        (value) => {
+            if (/(([0-1][0-9])|([2][0-3])):([0-5][0-9]):([0-5][0-9])/.test(value))
+                return true;
+            return "Time must be in the format 00:00:00.";
+        },
     ],
-  }),
-  methods: {
+}),
+    methods: {
     clearInput() {
-      this.$refs.appointmentForm.reset();
+        this.$refs.appointmentForm.reset();
     },
     createAppointment() {
-      this.appointment.patientId = this.$store.state.patientId;
-      AppointmentService.createAppointment(this.appointment).then(
-        (response) => {
-          if (response.status === 201) {
-         //   this.getTimeslots();
-            this.$router.push("/");
-          }
-        }
-      );
-      //this.$router.push("/");
+        this.appointment.patientId = this.$store.state.patientId;
+        AppointmentService.createAppointment(this.appointment).then(
+            (response) => {
+                if (response.status === 201) {
+                    //   this.getTimeslots();
+                    this.$router.push("/");
+                }
+            }
+        );
+        //this.$router.push("/");
     },
     getTimeSlotByIdAndDate(id, date) {
-      AppointmentService.getTimeArray(id, date).then((response) => {
-        this.timeSlots = response.data;
-      });
-      // service call here to pull data from doctor based on id this.selected and date selected this.dateSelected
-      // will i need to add a list of dates as well as a dropdown menu?
+        AppointmentService.getTimeArray(id, date).then((response) => {
+            this.timeSlots = response.data;
+        });
+        // service call here to pull data from doctor based on id this.selected and date selected this.dateSelected
+        // will i need to add a list of dates as well as a dropdown menu?
     },
     chosenDoctor() {
-      this.appointment.doctorId = this.doctorObj.doctorId;
-      console.log("id", this.doctorObj.doctorId);
-      DoctorTimeService.getTimeArray(
-        this.appointment.doctorId,
-        this.appointment.appointmentDate
-      ).then((response) => {
-        this.timeslots = response.data;
-      });
+        this.appointment.doctorId = this.doctorObj.doctorId;
+        console.log("id", this.doctorObj.doctorId);
+        DoctorTimeService.getTimeArray(
+            this.appointment.doctorId,
+            this.appointment.appointmentDate
+        ).then((response) => {
+            this.timeslots = response.data;
+        });
     },
-  },
-  created() {
+},
+created() {
     this.appointment.patientId = this.$store.state.currentPatient.patientId;
     AppointmentService.getTimeArray(
-      this.appointment.doctorId,
-      this.appointment.appointmentDate
+        this.appointment.doctorId,
+        this.appointment.appointmentDate
     ).then((response) => {
-      this.timeSlots = response.data;
+        this.timeSlots = response.data;
     });
-  },
+},
 };
 </script>
+
+<style scoped></style>

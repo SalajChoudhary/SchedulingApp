@@ -1,173 +1,129 @@
 /* eslint-disable */
 <template>
-    <v-container fill-height fluid>
-        <navbar />
-        <v-col
-                justify="center"
-                fill-height
-                class="d-flex justify-center"
-        >
-            <div id="appointment" class="text-center">
-                <v-card>
-                    <v-form
-                            class="px-6 pb-5 pt-6"
-                            ref="appointmentForm"
-                            id="appointmentForm"
-                            v-model="valid"
-                            @submit.prevent="createAppointment"
-                    >
-                        <v-img
-                                class="mx-auto"
-                                src="../assets/caduceus-transparent-background-8.png"
-                                max-width="50px"
-                                max-height="100px"
-                        >
-                        </v-img>
-                        <h1>Please Enter Appointment Information</h1>
-                        <v-text-field
-                                v-model="appointment.appointmentDate"
-                                :counter="100"
-                                label="Appointment Date"
-                                prepend-inner-icon="mdi-cake"
-                                required
-                        ></v-text-field>
-                        <v-select
-                                :items="this.$store.state.doctors"
-                                v-model="doctorObj"
-                                item-text="firstName"
-                                item-value="id"
-                                return-object
-                                dense
-                                outlined
-                                hide-details
-                                class="ma-2 pb-6"
-                                label="doctors"
-                                @change="chosenDoctor"
-                        ></v-select>
+  <v-container fill-height fluid>
+    <navbar />
+    <v-col justify="center" fill-height class="d-flex justify-center">
+      <div id="newReviewForm" class="text-center">
+        <v-card>
+          <v-form
+            class="px-6 pb-5 pt-6"
+            ref="newReviewForm"
+            id="newReviewForm"
+            v-model="valid"
+            @submit.prevent="createReview"
+          >
+            <v-img
+              class="mx-auto"
+              src="../assets/caduceus-transparent-background-8.png"
+              max-width="50px"
+              max-height="100px"
+            >
+            </v-img>
+            <h1>Please Enter Review Information</h1>
+            <v-select
+              :items="this.$store.state.doctors"
+              v-model="doctorObj"
+              item-text="firstName"
+              item-value="id"
+              return-object
+              dense
+              outlined
+              hide-details
+              class="ma-2 pb-6"
+              label="doctors"
+              @change="chosenDoctor"
+            ></v-select>
+              <v-text-field
+                  v-model="newReview.reviewTitle"
+                  :rules="nameRules"
+                  :counter="50"
+                  label="Name for review"
+                  prepend-inner-icon="mdi-rename"
+                  required
+              ></v-text-field>
 
-                        <v-select
-                                :items="timeslots"
-                                v-model="appointment.appointmentTime"
-                                item-text=""
-                                item-value="id"
-                                return-object
-                                dense
-                                outlined
-                                hide-details
-                                class="ma-2 pb-6"
-                                label="timeslots"
-                        ></v-select>
-                        <v-text-field
-                                v-model="appointment.description"
-                                :counter="100"
-                                label="Description"
-                                required
-                        >
-                        </v-text-field>
+              <v-rating
+                  v-model.number="newReview.reviewRating"
+                  bg-color="orange-lighten-1"
+                  color="yellow"
+              ></v-rating>
 
-                        <v-btn type="submit" :disabled="!valid">Create Review</v-btn>
-                        <v-btn @click="clearInput"> Clear Fields </v-btn>
-                    </v-form>
-                </v-card>
-            </div>
-        </v-col>
-    </v-container>
+            <v-text-field
+              v-model="newReview.reviewBody"
+              :counter="100"
+              label="Description"
+              required
+            >
+            </v-text-field>
+
+            <v-btn type="submit" :disabled="!valid">Create Review</v-btn>
+            <v-btn @click="clearInput"> Clear Fields </v-btn>
+          </v-form>
+        </v-card>
+      </div>
+    </v-col>
+  </v-container>
 </template>
 
 <script>
-import AppointmentService from "../services/AppointmentService";
+import reviewService from "@/services/ReviewService";
 import Navbar from "../components/Navbar.vue";
-import DoctorTimeService from "../services/DoctorTimeService";
 
 export default {
-    name: "AppointmentForm",
-    components: {
-        Navbar,
+  name: "newReviewForm",
+  components: {
+    Navbar,
+  },
+  data: () => ({
+      doctorName: "",
+      doctorId: null,
+      patientName: "",
+      patientId: null,
+      newReview: {
+          patientId: "",
+          doctorId: "",
+          reviewRating: "",
+          reviewTitle: "",
+          reviewBody: "",
+          reviewDate: "",
+      },
+    timeslots: [],
+    valid: false,
+    selected: null,
+      doctors: [],
+      doctorObj: {},
+  }),
+  methods: {
+    clearInput() {
+      this.$refs.reviewForm.reset();
     },
-    data: () => ({
-        appointment: {
-            patientId: 0,
-            doctorId: null,
-            appointmentDuration: 30,
-            description: "",
-            appointmentDate: "",
-            appointmentTime: "",
-        },
-        timeslots: [],
-        valid: false,
-        selected: null,
-        dateSelected: null,
-        dateRules: [
-            (value) => {
-                if (value) return true;
-
-                return "Date is required.";
-            },
-            // eslint-disable-next-line
-            /* eslint-disable */
-            (value) => {
-                if (
-                    /^\d{4}[\-\/\s]?((((0[13578])|(1[02]))[\-\/\s]?(([0-2][0-9])|(3[01])))|(((0[469])|(11))[\-\/\s]?(([0-2][0-9])|(30)))|(02[\-\/\s]?[0-2][0-9]))$/.test(
-                        value
-                    )
-                )
-                    return true;
-
-                return "Date must be in the format YYYY-MM-DD.";
-            },
-        ],
-        timeRules: [
-            (value) => {
-                if (value) return true;
-
-                return "Time is required.";
-            },
-            (value) => {
-                if (/(([0-1][0-9])|([2][0-3])):([0-5][0-9]):([0-5][0-9])/.test(value))
-                    return true;
-
-                return "Time must be in the format 00:00:00.";
-            },
-        ],
-    }),
-    methods: {
-        clearInput() {
-            this.$refs.appointmentForm.reset();
-        },
-        createAppointment() {
-            this.appointment.patientId = this.$store.state.currentPatient.patientId;
-            AppointmentService.createAppointment(this.appointment).then(
-                (response) => {
-                    if (response.status === 201) {
-                        this.getTimeslots();
-                    }
-                }
-            );
-            this.$router.push("/");
-        },
-        getTimeSlotByIdAndDate(id, date) {
-            AppointmentService.getTimeArray(id, date).then((response) => {
-                this.timeSlots = response.data;
-            });
-            // service call here to pull data from doctor based on id this.selected and date selected this.dateSelected
-            // will i need to add a list of dates as well as a dropdown menu?
-        },
-        chosenDoctor() {
-            this.appointment.doctorId = this.doctorObj.doctorId;
-            console.log("id", this.doctorObj.doctorId);
-            DoctorTimeService.getTimeArray(
-                this.appointment.doctorId,
-                this.appointment.appointmentDate
-            ).then((response) => {
-                this.timeslots = response.data;
-            });
-        },
+    createReview() {
+      this.newReview.patientId = this.$store.state.patientId;
+      console.log(this.newReview.patientId + " checking review patient Id");
+        let date = new Date();
+        let year = date.getFullYear();
+        let month = String(date.getMonth() + 1).padStart(2, "0");
+        let day = String(date.getDate()).padStart(2, "0");
+        this.newReview.reviewDate = `${year}-${month}-${day}`;
+      reviewService.createReview(this.newReview).then(
+        (response) => {
+          if (response.status === 201) {
+              this.$router.push({ name: "reviews" });
+          }
+        }
+      );
+      this.$router.push("/");
     },
-    created() {
-        this.appointment.patientId = this.$store.state.currentPatient.patientId;
-        // AppointmentService.getTimeArray(this.appointment.doctorId, this.appointment.appointmentDate).then(response => {
-        //   this.timeSlots = response.data;
-        // });
+      // service call here to pull data from doctor based on id this.selected and date selected this.dateSelected
+      // will i need to add a list of dates as well as a dropdown menu?
+    chosenDoctor() {
+      this.newReview.doctorId = this.doctorObj.doctorId;
+        this.newReview.patientId = this.$store.state.patientId;
+        console.log("id", this.doctorObj.doctorId);
     },
+  },
+  created() {
+    this.newReview.patientId = this.$store.state.patientId;
+  },
 };
 </script>

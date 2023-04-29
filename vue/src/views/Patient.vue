@@ -67,7 +67,6 @@
               prepend-inner-icon="mdi-city"
               required
             ></v-text-field>
-            <v-select label="Select" :items="states"> </v-select>
 
             <v-text-field
               v-model="patient.states"

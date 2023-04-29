@@ -2,7 +2,7 @@
   <v-container>
     <nav-bar />
     <div class="main">
-      <h2>Reviews for {{ this.doctorName }}</h2>
+      <h2>Rating summary for all doctors</h2>
       <p class="description">{{ this.title }}</p>
 
       <div class="well-display">
@@ -77,10 +77,7 @@
         </div>
       </div>
 
-      <a
-        id="show-form-button"
-        href="#"
-        v-on:click.prevent="getItem"
+      <a id="show-form-button" href="#" v-on:click.prevent="getItem"
         >Create Review</a
       >
       <v-col fill-height class="d-flex justify-start">
@@ -153,7 +150,7 @@
 
       <div
         class="review"
-        v-for="review in this.$store.state.reviews"
+        v-for="review in filteredReviews"
         v-bind:key="review.id"
       >
         <!-- loop over review objects based on a filtered review list of doctors by id , do not need favorited section line 77-->
@@ -209,9 +206,17 @@ export default {
       //currentDate:
     };
   },
+    // watch: {
+    //   refreshPage: {
+    //       handler: "refreshComponent",
+    //       immediate: true
+    //   }
+    // },
   methods: {
     getAllReviews() {
       reviewService.getAllReviews().then((response) => {
+        console.log(response.data);
+        this.reviews = this.$store.state.reviews;
         this.$store.commit("SET_REVIEWS", response.data);
       });
     },
@@ -219,9 +224,9 @@ export default {
       this.selectedDoctorId = this.doctorObj.doctorId;
     },
     addNewReview() {
-        this.newReview.patientId = 1;
-        // eslint-disable-next-line no-undef
-        this.newReview.doctorId = this.selectedDoctorId;
+      this.newReview.patientId = 1;
+      // eslint-disable-next-line no-undef
+      this.newReview.doctorId = this.selectedDoctorId;
       let date = new Date();
       let year = date.getFullYear();
       let month = String(date.getMonth() + 1).padStart(2, "0");
@@ -250,10 +255,10 @@ export default {
     getReviewsByDoctorId(doctorId) {
       return this.reviews.filter((review) => review.doctorId === doctorId);
     },
-      getItem() {
-          this.item = "";
-          this.$router.push({ name: "createReview" });
-      },
+    getItem() {
+      this.item = "";
+      this.$router.push({ name: "createReview" });
+    },
   },
   computed: {
     averageRating() {
@@ -281,12 +286,13 @@ export default {
       // filtered reviews will grab review list, and filter through them based on the doctor id to display each doctors reviews
       // maybe I need a drop down menu like v-calendar to choose which doctor to see reviews for?? This way I can get the id and compare
       // to the review id
-      return this.filter((review) => review.docId === this.selectedDoctorId);
+      return this.reviews.filter(
+        (review) => review.doctorId === this.doctorObj.doctorId
+      );
     },
   },
   created() {
     this.getAllReviews();
-    this.reviews = this.$store.state.reviews;
     this.doctors = this.$store.state.doctors;
   },
 };

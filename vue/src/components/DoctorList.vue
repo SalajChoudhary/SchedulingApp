@@ -23,6 +23,7 @@
           </v-data-table>
         </v-card>
         <v-btn class="mt-3" @click="getItem()"> Book Appointment </v-btn>
+        <v-btn class="mt-3" @click="goToUpdateForm()"> Reschedule Appointment </v-btn>
       </v-col>
     </v-row>
   </v-container>
@@ -30,7 +31,6 @@
 
 <script>
 import doctorService from "../services/DoctorService.js";
-import patientService from "../services/PatientService.js";
 
 export default {
   name: "doctor-list",
@@ -56,14 +56,18 @@ export default {
       this.item = "";
       this.$router.push({ name: "doctor" });
     },
-    // sets current patient object in vuex
-    getPatientInfo() {
-      patientService
-        .getPatientByUserId(this.$store.state.user.id)
-        .then((response) => {
-          this.$store.commit("SET_PATIENT", response.data);
-        });
+    goToUpdateForm() {
+        this.item = "";
+        this.$router.push({ name: "updateAppointment" });
     },
+    // sets current patient object in vuex
+    // getPatientInfo() {
+    //   patientService
+    //     .getPatientByUserId(this.$store.state.user.id)
+    //     .then((response) => {
+    //       this.$store.commit("SET_PATIENT", response.data);
+    //     });
+    // },
   },
   data() {
     return {
@@ -79,12 +83,12 @@ export default {
   },
   created() {
     this.getDoctors();
-    patientService
-      .getPatientByUserId(this.$store.state.user.id)
-      .then((response) => {
-        console.log("hi", response);
-        this.$store.commit("SET_PATIENT", response.data);
-      });
+    // patientService
+    //   .getPatientByUserId(this.$store.state.user.id)
+    //   .then((response) => {
+    //     console.log("hi", response);
+    //     this.$store.commit("SET_PATIENT", response.data);
+    //   });
     // this.getPatientInfo();
   },
 };
