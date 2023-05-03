@@ -33,19 +33,6 @@
               required
             ></v-text-field>
             <v-select
-              :items="this.$store.state.doctors"
-              v-model="doctorObj"
-              item-text="firstName"
-              item-value="id"
-              return-object
-              dense
-              outlined
-              hide-details
-              class="ma-2 pb-6"
-              label="doctors"
-              @change="chosenDoctor"
-            ></v-select>
-            <v-select
               :items="timeslots"
               v-model="appointment.appointmentTime"
               item-text=""
@@ -64,7 +51,7 @@
               required
             >
             </v-text-field>
-            <v-btn type="submit" :disabled="!valid">Create Appointment</v-btn>
+            <v-btn type="submit" :disabled="!valid">Update Appointment</v-btn>
             <v-btn @click="clearInput"> Clear Fields </v-btn>
           </v-form>
         </v-card>
